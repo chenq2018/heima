@@ -1,0 +1,64 @@
+<!-- <%-  %> 表示以html形式解析 -->
+<%- include('../layout/header.ejs') %> 
+
+<!-- 引入富文本编辑器 -->
+<link rel="stylesheet" href="../../node_modules/mditor/dist/css/mditor.min.css">
+<script src="../../node_modules/mditor/dist/js/mditor.min.js"></script>
+
+<div class="container">
+    <h2>文章添加页</h2>
+    <hr>
+    <form id='form'>
+        <!-- 掩藏域，用来获取当前登录用户的ID，以便获取authorID -->
+        <input type="text" class="hidden" name="authorID" value="<%= user.id %>">
+        <div class="form-group">
+            <label for="">文章标题:</label>
+            <input type="text" name="title" class="form-control">   
+        </div>
+        <div class="form-group">
+            <label for="">文章内容:</label>
+            <textarea name="content" class="form-control" id="editor"></textarea>   
+        </div>
+
+        <div class="form-group">
+                <input type="submit" value="发表文章" class="btn btn-primary">   
+        </div>
+    </form>
+
+</div>
+
+<script>
+    var mditor =  Mditor.fromTextarea(document.getElementById('editor'));
+ 
+    //获取或设置编辑器的值
+    mditor.on('ready',function(){
+      console.log(mditor.value);
+      mditor.value = '** hello **';	
+    });
+
+    // 发表
+    $('#form').on('submit', function(e){
+        // console.log('aa');
+
+        // 阻止默认跳转
+        e.preventDefault();
+
+        // 请求
+        $.ajax({
+            type: 'post',
+            url: '/article/publish',
+            data: $('#form').serialize(),
+            dataType: 'json',
+            success: function(result) {
+                // console.log(result);
+                if(result.status !== 200) {
+                    console.log('请求失败');
+                }
+                // 成功跳转
+                location.href = '/article/info/' + result.insertId;
+            }
+        })
+    })
+</script>
+
+<%- include('../layout/footer.ejs') %>

@@ -1,0 +1,61 @@
+<%- include('../layout/header.ejs') %>
+
+<!-- 引入富文本编辑器 -->
+<link rel="stylesheet" href="../../node_modules/mditor/dist/css/mditor.min.css">
+<script src="../../node_modules/mditor/dist/js/mditor.min.js"></script>
+
+<div class="container">
+    <h2>编辑页面</h2>
+    <hr>
+    <form id='form'>
+        <!-- 掩藏域，用来获取当前登录用户的ID，以便获取authorID -->
+        <input type="text" class="hidden" name="id" value="<%= editData.id %>">
+        <div class="form-group">
+            <label for="">文章标题:</label>
+            <input type="text" name="title" class="form-control" value="<%= editData.title %>">   
+        </div>
+        <div class="form-group">
+            <label for="">文章内容:</label>
+            <textarea name="content" class="form-control" id="editor"><%= editData.content %></textarea>   
+        </div>
+
+        <div class="form-group">
+                <input type="submit" value="编辑完成" class="btn btn-primary">   
+        </div>
+    </form>
+
+</div>
+
+<script>
+    var mditor =  Mditor.fromTextarea(document.getElementById('editor'));
+ 
+    //获取或设置编辑器的值
+    // mditor.on('ready',function(){
+    //   console.log(mditor.value);
+    //   mditor.value = '** hello **';	
+    // });
+
+    // 编辑功能
+    $('#form').on('submit', function(e){
+        // 阻止默认行为
+        e.preventDefault();
+
+        // 请求
+        $.ajax({
+            type: 'post',
+            url: '/article/editSuccess',
+            data: $('#form').serialize(),
+            dataType: 'json',
+            success: function(result) {
+                console.log(result)
+                if(result.status !== 200) {
+                    return location.href = '/';
+                }
+                // 跳转到编辑页面本身
+                location.href = '/article/info/<%= editData.id %>'; 
+            } 
+        })
+    })
+</script>
+
+<%- include('../layout/footer.ejs') %>
